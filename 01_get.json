@@ -1,0 +1,486 @@
+{
+  "name": "01_get",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        192
+      ],
+      "id": "28c3cf64-6cfd-4879-9a3f-eb3f607664b7",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "http://export.arxiv.org/api/query?search_query=ti:LLM+AND+cat:math*&max_results=300&sortBy=submittedDate&sortOrder=descending",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1312,
+        192
+      ],
+      "id": "9c486b0b-602a-4f7d-b148-68213160fe4b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        192
+      ],
+      "id": "fd93548b-9ff4-49f0-a80d-9bd80d1dfa8f",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "feed.entry",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        192
+      ],
+      "id": "55b1d81e-1601-4486-9958-ae831610058f",
+      "name": "Split Out Each Paper"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f2f1c9af-6af0-48ee-a5e4-2f93bf73b49f",
+              "name": "id",
+              "value": "={{ $json.id.split('/').pop() }}",
+              "type": "string"
+            },
+            {
+              "id": "867c99a7-8b9a-4255-a8b6-6d1b60866b3d",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "1a399f46-8aff-448d-ae62-76ef1221451f",
+              "name": "link",
+              "value": "={{ $json.link.map(item => item.href) }}",
+              "type": "array"
+            },
+            {
+              "id": "5d567c8d-b63a-4291-a670-bd03cb5921e6",
+              "name": "summary",
+              "value": "={{ $json.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "ce42fe78-9228-42fd-bf06-4f9bcafd95f1",
+              "name": "author",
+              "value": "={{ $json.author.map(item => item.name).join('; ') }}",
+              "type": "array"
+            },
+            {
+              "id": "ac78fedb-fab0-4ba8-8b1d-15b7046aa3a6",
+              "name": "paper_path",
+              "value": "=/home/node/.n8n-files/papers/{{ $json.id.split('/').pop() }}.pdf",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -688,
+        192
+      ],
+      "id": "2ee7989f-e33c-4640-8942-06727a47377d",
+      "name": "Select relevant fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "link",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        192
+      ],
+      "id": "76843ea6-722c-4269-8488-69eda9fbb091",
+      "name": "Split Out Links"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6d0aa66c-bfeb-4482-ac2b-bcdeda85b3e9",
+              "leftValue": "={{ $json.link }}",
+              "rightValue": "https://arxiv.org/pdf",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -272,
+        192
+      ],
+      "id": "5d95bbe4-0685-4427-9659-8e0072e53863",
+      "name": "Filter for PDF-Links"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "zS1wLsr3U1cgaUr7",
+          "mode": "list",
+          "cachedResultName": "Arxiv_Papers",
+          "cachedResultUrl": "/projects/qPzHAcwYZkhwqYj8/datatables/zS1wLsr3U1cgaUr7"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "paper_id": "={{ $json.id }}",
+            "paper_title": "={{ $json.title }}",
+            "paper_authors": "={{ $json.author }}",
+            "paper_summary": "={{ $json.summary }}",
+            "paper_link": "={{ $json.link }}",
+            "paper_path": "={{ $json.paper_path }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "paper_id",
+              "displayName": "paper_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_title",
+              "displayName": "paper_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_authors",
+              "displayName": "paper_authors",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_summary",
+              "displayName": "paper_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_link",
+              "displayName": "paper_link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_path",
+              "displayName": "paper_path",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        496,
+        192
+      ],
+      "id": "57b47110-51e2-4e50-9828-40b534486cda",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.paper_link }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 3,
+              "batchInterval": 3000
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "file",
+              "outputPropertyName": "paper_pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        192
+      ],
+      "id": "715fe485-75b2-4ff3-b5b5-b05de8eee7ad",
+      "name": "Download PDFs"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $json.paper_path }}",
+        "dataPropertyName": "paper_pdf",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        960,
+        192
+      ],
+      "id": "142ec5db-0366-43ab-b4ff-80f9ec38b02b",
+      "name": "Write PDFs to Disk"
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "zS1wLsr3U1cgaUr7",
+          "mode": "list",
+          "cachedResultName": "Arxiv_Papers",
+          "cachedResultUrl": "/projects/qPzHAcwYZkhwqYj8/datatables/zS1wLsr3U1cgaUr7"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "condition": "isNotEmpty"
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "09f98676-6ffe-4b67-9fea-2047c9dab783",
+      "name": "Clear Data Table",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        256,
+        192
+      ],
+      "id": "bdd80131-3caa-4e78-9d3e-c09a8f2449fa",
+      "name": "Wait for Clear"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Split Out Each Paper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Each Paper": {
+      "main": [
+        [
+          {
+            "node": "Select relevant fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select relevant fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Links": {
+      "main": [
+        [
+          {
+            "node": "Filter for PDF-Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter for PDF-Links": {
+      "main": [
+        [
+          {
+            "node": "Clear Data Table",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait for Clear",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Insert row": {
+      "main": [
+        [
+          {
+            "node": "Download PDFs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download PDFs": {
+      "main": [
+        [
+          {
+            "node": "Write PDFs to Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Data Table": {
+      "main": [
+        [
+          {
+            "node": "Wait for Clear",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Clear": {
+      "main": [
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8a295f12-526b-4bf4-a2a3-5c7761515bf5",
+  "meta": {
+    "instanceId": "ab9ffbdd41361317ea2082a1fd76b2ac6c5e3abd8df51c3ac65fa4e99678d8b4"
+  },
+  "id": "I4ADGi6bzpVwmjd6",
+  "tags": []
+}

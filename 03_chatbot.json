@@ -1,0 +1,171 @@
+{
+  "name": "03_chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -272,
+        0
+      ],
+      "id": "e314385a-7b79-4a2c-ab1b-7067f78bb5ec",
+      "name": "When chat message received",
+      "webhookId": "3bf1c680-e7c7-4492-a1c7-399d9c343608"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=You are a scientific assistant.  \n\n\n### COMPRESSED INFORMATION ABOUT PAPERS ###\n{{JSON.stringify($json.context_data, null, 2)}}\n###########################################"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        624,
+        0
+      ],
+      "id": "b3512c96-aab8-44df-a45a-aab174b65e77",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "gemma3:12b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        544,
+        208
+      ],
+      "id": "cfaed935-7b2e-4ac4-91a5-f09b292fa0f4",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "oEjm4nAZxfgccouF",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        208
+      ],
+      "id": "45f71a4d-195a-467d-8dc7-552941ff1605",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "zS1wLsr3U1cgaUr7",
+          "mode": "list",
+          "cachedResultName": "Arxiv_Papers",
+          "cachedResultUrl": "/projects/qPzHAcwYZkhwqYj8/datatables/zS1wLsr3U1cgaUr7"
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "b5cb3a7f-71fe-49e7-afc4-e06690048d25",
+      "name": "Get row(s)"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "context_data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        144,
+        0
+      ],
+      "id": "5316c781-1951-4232-8abd-3f96789fb76f",
+      "name": "Aggregate"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "41bf5444-1f6c-444b-93da-03f9bed0021c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ab9ffbdd41361317ea2082a1fd76b2ac6c5e3abd8df51c3ac65fa4e99678d8b4"
+  },
+  "id": "YwDwn2pazywfgvGk",
+  "tags": []
+}

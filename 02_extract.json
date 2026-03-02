@@ -1,0 +1,391 @@
+{
+  "name": "02_extract",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "gemma3:12b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        224
+      ],
+      "id": "ed1b7648-f4f7-4628-a62e-0fc3d4b662c0",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "oEjm4nAZxfgccouF",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You must extract the requested information from the provided paper text and output it as a single valid JSON object. The output must be understandable without knowlegde of the provided paper text.\n\nFollow these rules:\n1. Output ONLY valid JSON.\n2. Do NOT include any text outside the JSON object.\n3. Do NOT invent information. Use only what is explicitly in the paper text.\n4. If information is missing, use the string: \"Not specified in the available information\".\n5. Lists must be JSON arrays.\n6. Field names must match the request exactly.\n7. NEVER add new fields to the output template.\n8. Include only information that is explicitly requested.\n9. Refer to the input text of the paper as \"the paper\" or similar.\n\n\nREQUEST:\n{{ $json.Prompt }}\n\nPAPER TEXT:\n{{ $('Extract from PDFs').item.json.text }}\n\nYour response must follow this format exactly:\n\n{{ $json.Output_format }}\n\n",
+        "options": {
+          "systemMessage": "You are a scientific analysis assistant. Your task is to analyze an uploaded academic paper with maximum precision, objectivity, and without speculation."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "ae7d5325-b466-4069-865b-c1e7d1acd1f3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "zS1wLsr3U1cgaUr7",
+          "mode": "list",
+          "cachedResultName": "Arxiv_Papers",
+          "cachedResultUrl": "/projects/qPzHAcwYZkhwqYj8/datatables/zS1wLsr3U1cgaUr7"
+        },
+        "limit": null
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "af7d9706-a86b-4009-a5a1-3862f70d4f9c",
+      "name": "Get papers"
+    },
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.paper_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        496,
+        0
+      ],
+      "id": "7540d7e3-f451-4583-b541-8eda50853af3",
+      "name": "Read Paper PDFs"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "a5ccef35-8740-43f3-8d71-4833364381d6",
+      "name": "Extract from PDFs"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "zS1wLsr3U1cgaUr7",
+          "mode": "list",
+          "cachedResultName": "Arxiv_Papers",
+          "cachedResultUrl": "/projects/qPzHAcwYZkhwqYj8/datatables/zS1wLsr3U1cgaUr7"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "paper_id",
+              "keyValue": "={{ $json.paper_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "extracted_infos": "={{ JSON.stringify($json.paper_infos) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "paper_id",
+              "displayName": "paper_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_title",
+              "displayName": "paper_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_authors",
+              "displayName": "paper_authors",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_summary",
+              "displayName": "paper_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_link",
+              "displayName": "paper_link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "paper_path",
+              "displayName": "paper_path",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "extracted_infos",
+              "displayName": "extracted_infos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "dryRun": false
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        2096,
+        0
+      ],
+      "id": "06603dc7-57e6-4f65-8ca5-e695c4f21a85",
+      "name": "Store Paper Infos"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2dc38342-295c-460a-a963-c45e72a3ad77",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2bedfeff-213a-4b46-8b78-8541ae1d8803",
+              "name": "paper_id",
+              "value": "={{ $('Get papers').item.json.paper_id }}",
+              "type": "string"
+            },
+            {
+              "id": "8bc6868d-a7ed-409d-9ff2-fae2a14d5849",
+              "name": "extract",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1632,
+        0
+      ],
+      "id": "78ba0c6d-90a2-4729-bf63-bbe3621991ee",
+      "name": "Pull paper_id"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "49XBCazUF1bWes64",
+          "mode": "list",
+          "cachedResultName": "Prompts",
+          "cachedResultUrl": "/projects/qPzHAcwYZkhwqYj8/datatables/49XBCazUF1bWes64"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        864,
+        0
+      ],
+      "id": "d5487370-af20-4647-945a-f27f8de98a39",
+      "name": "Get prompts"
+    },
+    {
+      "parameters": {
+        "jsCode": "const grouped = {};\n\nfor (const item of $input.all()) {\n  const id = item.json.paper_id;\n  let extractRaw = item.json.extract;\n\n  // 1. Initialisiere das Objekt für die ID, falls noch nicht vorhanden\n  if (!grouped[id]) {\n    grouped[id] = {\n      paper_id: id,\n      paper_infos: {} // Hier fließen alle Extrakte hinein\n    };\n  }\n\n  // 2. Bereinigung der Markdown-Steuerzeichen\n  if (extractRaw && typeof extractRaw === 'string') {\n    try {\n      const cleanJsonString = extractRaw\n        .replace(/```json\\n?|```/g, '')\n        .trim();\n      \n      // 3. String in echtes JSON umwandeln\n      const parsedExtract = JSON.parse(cleanJsonString);\n\n      // 4. Den Inhalt in das paper_infos Objekt mergen\n      // Das führt dazu, dass 'novelties', 'results' etc. alle in paper_infos landen\n      Object.assign(grouped[id].paper_infos, parsedExtract);\n\n    } catch (error) {\n      console.error(`Fehler bei Paper ID ${id}:`, error);\n      grouped[id].paper_infos.error = \"Ungültiges JSON im Extrakt\";\n    }\n  }\n}\n\n// 5. Rückgabe als Liste von Items (ein Item pro Paper)\nreturn Object.values(grouped).map(data => ({ json: data }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        0
+      ],
+      "id": "09361950-b9dd-4d30-9be8-6dd0218761ec",
+      "name": "Merge JSONs"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Pull paper_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get papers": {
+      "main": [
+        [
+          {
+            "node": "Read Paper PDFs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Paper PDFs": {
+      "main": [
+        [
+          {
+            "node": "Extract from PDFs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from PDFs": {
+      "main": [
+        [
+          {
+            "node": "Get prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get papers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull paper_id": {
+      "main": [
+        [
+          {
+            "node": "Merge JSONs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get prompts": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge JSONs": {
+      "main": [
+        [
+          {
+            "node": "Store Paper Infos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "31ceffba-842c-45e6-a065-1be007c4a53a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ab9ffbdd41361317ea2082a1fd76b2ac6c5e3abd8df51c3ac65fa4e99678d8b4"
+  },
+  "id": "3EIvAkrOxE3pzyDH",
+  "tags": []
+}

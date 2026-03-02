@@ -1,0 +1,35 @@
+﻿id,PromptName,Prompt,Question,Output_format,createdAt,updatedAt
+1,Prompt01,"Summarize the motivation of the paper in max. 50 words and provide the result in the field ""motivation"". And create a list of all problems that are tackled in the paper and add them to the field ""problems"", each summarized in at most 30 words",motivation und problemstellung,"{
+  ""motivation"": ...
+  ""problems"": [...]
+}",2026-02-02T18:29:31.345Z,2026-02-02T18:37:20.276Z
+2,Prompt02,"Summarize the core statements of the paper in max. 70 words and provide the result in the field ""core_statements"". And create a list of all results presented in the paper; add them to the field ""results"", each summarized in a single text with at most 30 words.",Kernaussage des Papers und Ergebnisse,"{
+  ""core_statements"": ...
+  ""results"": [...]
+}",2026-02-02T18:31:57.968Z,2026-02-02T18:33:31.736Z
+3,Prompt03,"Make a list of all novelties claimed in the paper. Add them to the field ""novelties"" and summarize each in at most 30 words.",Neuerungen/Verbesserungen,"{
+  ""novelties"": [...]
+}",2026-02-02T18:32:06.804Z,2026-02-02T18:34:02.183Z
+4,Prompt04,"Make a list of all technologies mentioned in this paper.  Add them to the field ""technologies"" and summarize each in at most 30 words. And create a list of all methods presented in the paper; add them to the field ""methods"", each summarized in a single text with at most 30 words.",Technologien und Methode,"{
+  ""technologies"": [...]
+  ""methods"": [...]
+}
+",2026-02-02T18:32:10.322Z,2026-02-02T18:37:04.980Z
+5,Prompt05,"Make a list of all disciplinary terms and terminology used in this paper. Add them to the field ""terminologies"", with the name or abbreviation in the field ""term"" and with the definition provided in the paper in the field ""definition"", where the definition is at most 30 words.
+",Fachbegriffe,"{
+  ""terminologies"": [
+    {
+	  ""term"": ...
+	  ""definition"": ...
+    }
+  ]
+}",2026-02-02T18:34:34.013Z,2026-02-02T18:35:09.459Z
+6,Prompt06,"Make a list of all evaluation methods used in this paper. Add them to the field ""evaluation_methods"" and summarize each in at most 30 words. Create a list of all data sets used in this paper. Describe, name and source for each data set in at most 50 words and add them to the field ""data"". And create a list of all evaluation results presented in the paper; add them to the field ""evaluation_results"", each summarized in a single text with at most 30 words.","Evaluierung, Daten und Ergebnisse","{
+  ""evaluation_methods"": [...]
+  ""data"": [...]
+  ""evaluation_results"": [...]
+}",2026-02-02T18:35:10.844Z,2026-02-02T18:35:46.100Z
+7,Prompt07,"Make a list of all limitations mentioned in this paper. Add them to the field ""limitations"" and summarize each in at most 30 words. And create a list of all potential improvements discussed in the paper; add them to the field ""potential_improvements"", each summarized in a single text with at most 30 words.",Limitierungen und Verbesserungsmöglichkeiten,"{
+  ""limitations"": [...]
+  ""potential_improvements"": [...]
+}",2026-02-02T18:35:53.071Z,2026-02-02T18:36:48.443Z
